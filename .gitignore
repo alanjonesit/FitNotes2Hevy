@@ -1,0 +1,28 @@
+# ---- Python files and folders ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ---- Temporary files, logs and backups ----
+*.log
+*.tmp
+*.bak
+
+# ---- System files ----
+.DS_Store
+Thumbs.db
+
+# ---- Virtual environments ----
+venv/
+.env/
+.venv/
+
+# ---- VS Code files ----
+.vscode/
+
+# ---- Export or generated files (by name or pattern) ----
+files/input/*.csv
+files/output/*.csv
+!files/input/.gitkeep
+!files/output/.gitkeep
