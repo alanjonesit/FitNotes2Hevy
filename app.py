@@ -19,9 +19,6 @@ try:
 except (FileNotFoundError, KeyError):
     GA_MEASUREMENT_ID = ""  # Running locally without secrets
 
-# DEBUG - remove after testing
-st.write(f"GA ID: {GA_MEASUREMENT_ID if GA_MEASUREMENT_ID else 'NOT LOADED'}")
-
 def add_google_analytics():
     """Add Google Analytics tracking to the page."""
     if GA_MEASUREMENT_ID:
