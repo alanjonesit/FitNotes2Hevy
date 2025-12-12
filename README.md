@@ -22,21 +22,19 @@ Key features:
 
 1. **Export your FitNotes data**
 
-   - Open FitNotes → Settings → Spreadsheet Export
-   - Save the CSV file
+   - Open FitNotes → Settings → Spreadsheet Export → select Workout Data → Save Export
 
 2. **Clone and setup**
 
    ```sh
    git clone https://github.com/alanjonesit/FitNotes2Hevy.git
    cd FitNotes2Hevy
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
-3. **Configure** (edit `config.py`)
+3. **Configure** (edit `src/fitnotes2hevy/config.py`)
 
    ```python
-   FIT_NOTES_PATH = './files/input/your_export.csv'
    DEFAULT_TRAINING_TIME = '07:00:00'  # Desired workout time
    TIMEZONE_OFFSET_HOURS = 10  # Your UTC offset (e.g., 10 for Sydney)
    ```
@@ -44,32 +42,43 @@ Key features:
 4. **Run conversion**
 
    ```sh
-   python main.py
+   python scripts/convert.py -i data/input/your_export.csv
    ```
 
-   Or with custom paths:
+   Or with custom options:
 
    ```sh
-   python main.py -i path/to/fitnotes.csv -o path/to/output.csv
+   python scripts/convert.py -i path/to/fitnotes.csv -o path/to/output.csv --timezone 10
    ```
 
 5. **Import to Hevy**
    - Open Hevy app → Settings → Export & Import Data → Import Data
-   - Select the generated file from `files/output/`
+   - Select the generated file from `data/output/`
+
+## Web Interface
+
+Run the Streamlit web app for easier conversion:
+
+```sh
+pip install -e ".[web]"
+streamlit run app.py
+```
+
+Or use the hosted version: [Coming soon]
 
 ## Configuration
 
 ### Timezone Setup
 
-Hevy interprets timestamps as UTC. Set your timezone offset in `config.py`:
+Hevy interprets timestamps as UTC. Set your timezone offset in `src/fitnotes2hevy/config.py` or via CLI:
 
-- **UTC+10** (Sydney, Melbourne): `TIMEZONE_OFFSET_HOURS = 10`
-- **UTC-8** (Los Angeles): `TIMEZONE_OFFSET_HOURS = -8`
-- **UTC+0** (London): `TIMEZONE_OFFSET_HOURS = 0`
+- **UTC+10** (Sydney, Melbourne): `--timezone 10`
+- **UTC-8** (Los Angeles): `--timezone -8`
+- **UTC+0** (London): `--timezone 0`
 
 ### Custom Exercise Mappings
 
-Add custom mappings in `files/map_fitnotes2hevy_custom.json`:
+Add custom mappings in `data/mappings/custom.json`:
 
 ```json
 {
@@ -84,30 +93,46 @@ Some exercises are automatically converted:
 - **Time → Reps**: Bird Dog, Dead Bug, Flutter Kicks (10 seconds = 1 rep)
 - **Time → Distance**: Farmer's Walk (1 second = 1 meter)
 
-Edit these lists in `main.py` if needed.
+Edit these lists in `src/fitnotes2hevy/config.py` if needed.
 
-## Files
+## Project Structure
 
-- `main.py` - Main conversion script
-- `config.py` - User configuration
-- `files/map_fitnotes2hevy_default.json` - Default exercise mappings
-- `files/map_fitnotes2hevy_custom.json` - Your custom mappings
-- `files/fitnotes_exercises.txt` - All FitNotes exercises
-- `files/hevy_exercises.txt` - All Hevy exercises
+```
+FitNotes2Hevy/
+├── src/fitnotes2hevy/      # Core package
+│   ├── converter.py        # Conversion logic
+│   ├── mappings.py         # Mapping utilities
+│   └── config.py           # Configuration
+├── data/
+│   ├── mappings/           # Exercise mappings
+│   ├── exercises/          # Exercise lists
+│   └── input/              # Input data files
+├── scripts/
+│   ├── convert.py          # Conversion script
+│   └── validate_mappings.py # Validation utility
+├── docs/                   # Documentation
+├── app.py                  # Streamlit web app
+└── requirements.txt        # Dependencies
+```
 
 ## Troubleshooting
 
 **Workouts show wrong time in Hevy?**
 
-- Adjust `TIMEZONE_OFFSET_HOURS` in `config.py`
+- Adjust timezone offset: `--timezone 10` or edit `src/fitnotes2hevy/config.py`
 
 **Exercise created as custom in Hevy?**
 
-- Check exercise name matches exactly in `files/hevy_exercises.txt`
-- Add mapping in `files/map_fitnotes2hevy_custom.json`
+- Check exercise name matches exactly in `data/exercises/hevy.txt`
+- Add mapping in `data/mappings/custom.json`
 - The exercise could be measured differently between FitNotes and Hevy. For example, a custom exercise "Bird Dog" in FitNotes could be measured in time, but in Hevy it is measured in reps. This disparity will create a custom exercise.
 
 **Missing exercises?**
 
 - Unmapped exercises keep their FitNotes names
-- Add them to `map_fitnotes2hevy_custom.json`
+- Add them to `data/mappings/custom.json`
+
+## Documentation
+
+- [Usage Guide](docs/usage.md) - Detailed usage instructions
+- [Deployment Guide](docs/deployment.md) - How to deploy the web app

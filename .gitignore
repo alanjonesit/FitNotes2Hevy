@@ -21,8 +21,14 @@ venv/
 # ---- VS Code files ----
 .vscode/
 
-# ---- Export or generated files (by name or pattern) ----
-files/input/*.csv
-files/output/*.csv
-!files/input/.gitkeep
-!files/output/.gitkeep
+# ---- Data files ----
+data/input/*.csv
+data/output/*.csv
+!data/input/.gitkeep
+!data/output/.gitkeep
+
+# ---- Build and distribution ----
+build/
+dist/
+*.egg-info/
+.eggs/

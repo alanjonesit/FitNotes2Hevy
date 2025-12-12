@@ -1,0 +1,30 @@
+Abductor
+Adductor
+Barbell Bench Press
+Barbell Military Press
+Cable Front Raise
+Cable Lateral Raise
+Cable Pullover
+Cable Row
+Cable Triceps Pushdown
+Dips
+Dumbbell Bulgarian Split Squat
+Dumbbell Curl
+Dumbbell Deadlift
+Dumbbell Fly
+Dumbbell Lateral Raise
+Dumbbell Military Press
+Dumbbell Squat
+Dumbbell Step Up
+Dumbbell Triceps Kickback
+Dynamic Dumbbell Plank
+Hip Thrust Machine
+Incline Dumbbell Press
+Lever Chest Press Machine
+Lower Back Extension
+Machine Fly
+Machine Row
+Neutral Grip Pull Up
+Obliques
+Overhead Dumbbell Press
+Push Ups
