@@ -14,8 +14,15 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
-# Initialize Google Analytics (use environment variable or Streamlit secrets)
-GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID") or st.secrets.get("GOOGLE_ANALYTICS_ID", "")
+st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
+
+# Initialize Google Analytics (after st.set_page_config)
+GA_MEASUREMENT_ID = ""
+try:
+    GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID") or st.secrets.get("GOOGLE_ANALYTICS_ID", "")
+except FileNotFoundError:
+    # secrets.toml not found, try environment variable only
+    GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID", "")
 
 # Initialize GA tracking
 if GA_MEASUREMENT_ID:
@@ -49,11 +56,6 @@ def track_error(error_type: str):
                 "error_type": error_type
             }
         )
-
-
-
-
-st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
 # Custom CSS
 st.markdown("""
