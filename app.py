@@ -1,80 +1,27 @@
 """Streamlit web app for FitNotes to Hevy conversion."""
 
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime
 from io import StringIO
 import sys
 from pathlib import Path
-import os
+import streamlit_analytics2 as streamlit_analytics
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
-# Initialize Google Analytics (use environment variable)
-try:
-    GA_MEASUREMENT_ID = st.secrets.get("GOOGLE_ANALYTICS_ID", "")
-except (FileNotFoundError, KeyError):
-    GA_MEASUREMENT_ID = ""  # Running locally without secrets
-
-# Debug - remove this after testing
-if GA_MEASUREMENT_ID:
-    st.sidebar.write(f"GA ID loaded: {GA_MEASUREMENT_ID[:8]}...")  # Shows first 8 chars
-else:
-    st.sidebar.write("⚠️ GA ID not found")
-
-def add_google_analytics():
-    """Add Google Analytics tracking to the page."""
-    if GA_MEASUREMENT_ID:
-        ga_code = f"""
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){{dataLayer.push(arguments);}}
-          gtag('js', new Date());
-          gtag('config', '{GA_MEASUREMENT_ID}');
-        </script>
-        """
-        components.html(ga_code, height=0)
-
-def track_conversion(num_exercises: int):
-    """Track a successful conversion event."""
-    if GA_MEASUREMENT_ID:
-        event_code = f"""
-        <script>
-          gtag('event', 'conversion', {{
-            'event_category': 'engagement',
-            'event_label': 'successful_conversion',
-            'value': {num_exercises}
-          }});
-        </script>
-        """
-        components.html(event_code, height=0)
-
-def track_error(error_type: str):
-    """Track a conversion error event."""
-    if GA_MEASUREMENT_ID:
-        event_code = f"""
-        <script>
-          gtag('event', 'conversion_error', {{
-            'event_category': 'engagement',
-            'event_label': 'failed_conversion',
-            'error_type': '{error_type}'
-          }});
-        </script>
-        """
-        components.html(event_code, height=0)
-
-# Add GA tracking to page
-add_google_analytics()
-
-
-
 st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
+
+# Start tracking analytics with Firestore
+streamlit_analytics.start_tracking(
+    streamlit_secrets_firestore_key="gcp_service_account",
+    firestore_collection_name="users",
+    firestore_project_name="fitnotes2hevy",
+    unsafe_password=st.secrets.get("analytics_password", "")
+)
 
 # Custom CSS
 st.markdown("""
@@ -278,9 +225,6 @@ if uploaded_file and df is not None:
                     df, mappings, st.session_state.timezone_offset, workout_time_str,
                     st.session_state.workout_name, st.session_state.workout_duration, st.session_state.workout_notes
                 )
-                
-                # Track conversion in Google Analytics
-                track_conversion(len(output_df))
                 
                 # Convert to CSV
                 output = StringIO()
@@ -559,3 +503,11 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+# Stop tracking and show analytics if ?analytics=on is in URL
+streamlit_analytics.stop_tracking(
+    streamlit_secrets_firestore_key="gcp_service_account",
+    firestore_collection_name="users",
+    firestore_project_name="fitnotes2hevy",
+    unsafe_password=st.secrets.get("analytics_password", "")
+)
