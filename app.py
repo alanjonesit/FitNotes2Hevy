@@ -291,7 +291,7 @@ tab1, tab2, tab3 = st.tabs(["Settings", "Exercise Mappings", "FAQ"])
 
 with tab1:
     st.caption(
-        "Configure conversion settings. FitNotes does not store this information, so defaults are applied to all workouts."
+        "Configure conversion settings. Hevy is expecting this data when importing the CSV file and FitNotes does not store this information, so defaults are applied to all workouts."
     )
 
     # Timezone options
@@ -364,10 +364,10 @@ with tab1:
 
 with tab2:
     st.info(
-        "FitNotes and Hevy use different exercise names. These mappings ensure your exercises are recognized correctly in Hevy instead of appearing as custom exercises."
+        "FitNotes and Hevy use different exercise names. Use mappings to ensure your exercises are recognized correctly in Hevy instead of appearing as custom exercises."
     )
     subtab1, subtab2, subtab3 = st.tabs(
-        ["Default Mappings", "Custom Mappings", "Preview Mappings"]
+        ["Default Mappings", "Custom Mappings", "Preview CSV Mappings"]
     )
 
     with subtab1:
@@ -483,7 +483,7 @@ with tab2:
                 )
         else:
             st.warning(
-                "Please upload a FitNotes CSV file to preview exercise mappings."
+                "Please upload a FitNotes CSV file (.csv) to preview exercise mappings."
             )
 
 with tab3:
@@ -499,13 +499,16 @@ with tab3:
         st.write(
             "Open FitNotes → Settings → Spreadsheet Export → select Workout Data → Save Export."
         )
+        st.write(
+            "View FitNotes's [export tutorial](https://www.fitnotesapp.com/settings/#spreadsheet-export)."
+        )
 
     with st.expander("How do I import the converted file to Hevy?"):
         st.write(
             "Open Hevy app → Settings → Export & Import Data → Import Data → Select the downloaded CSV file."
         )
         st.write(
-            "View Hevy's [official import tutorial](https://help.hevyapp.com/hc/en-us/articles/35687878672663-Tutorial-Log-Previous-Workouts-and-Import-CSV)."
+            "View Hevy's [import tutorial](https://help.hevyapp.com/hc/en-us/articles/35687878672663-Tutorial-Log-Previous-Workouts-and-Import-CSV)."
         )
 
     with st.expander("Why are my workout times wrong in Hevy?"):
