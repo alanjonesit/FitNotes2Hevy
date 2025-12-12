@@ -1,0 +1,11 @@
+[logger]
+level = "info"
+
+[client]
+showErrorDetails = true
+
+# Google Analytics configuration
+# Replace YOUR_MEASUREMENT_ID with your actual GA4 Measurement ID
+# You can find this in Google Analytics 4 > Admin > Data Streams > Web stream > Measurement ID
+[gcloud]
+keyfile = ""

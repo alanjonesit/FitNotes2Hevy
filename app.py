@@ -1,7 +1,6 @@
 """Streamlit web app for FitNotes to Hevy conversion."""
 
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime
 from io import StringIO
@@ -20,17 +19,13 @@ try:
 except (FileNotFoundError, KeyError):
     GA_MEASUREMENT_ID = ""  # Running locally without secrets
 
-# Debug - remove this after testing
-if GA_MEASUREMENT_ID:
-    st.sidebar.write(f"GA ID loaded: {GA_MEASUREMENT_ID[:8]}...")  # Shows first 8 chars
-else:
-    st.sidebar.write("⚠️ GA ID not found")
+# DEBUG - remove after testing
+st.write(f"GA ID: {GA_MEASUREMENT_ID if GA_MEASUREMENT_ID else 'NOT LOADED'}")
 
 def add_google_analytics():
     """Add Google Analytics tracking to the page."""
     if GA_MEASUREMENT_ID:
         ga_code = f"""
-        <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
         <script>
           window.dataLayer = window.dataLayer || [];
@@ -39,35 +34,39 @@ def add_google_analytics():
           gtag('config', '{GA_MEASUREMENT_ID}');
         </script>
         """
-        components.html(ga_code, height=0)
+        st.markdown(ga_code, unsafe_allow_html=True)
 
 def track_conversion(num_exercises: int):
     """Track a successful conversion event."""
     if GA_MEASUREMENT_ID:
         event_code = f"""
         <script>
-          gtag('event', 'conversion', {{
-            'event_category': 'engagement',
-            'event_label': 'successful_conversion',
-            'value': {num_exercises}
-          }});
+          if (typeof gtag !== 'undefined') {{
+            gtag('event', 'conversion', {{
+              'event_category': 'engagement',
+              'event_label': 'successful_conversion',
+              'value': {num_exercises}
+            }});
+          }}
         </script>
         """
-        components.html(event_code, height=0)
+        st.markdown(event_code, unsafe_allow_html=True)
 
 def track_error(error_type: str):
     """Track a conversion error event."""
     if GA_MEASUREMENT_ID:
         event_code = f"""
         <script>
-          gtag('event', 'conversion_error', {{
-            'event_category': 'engagement',
-            'event_label': 'failed_conversion',
-            'error_type': '{error_type}'
-          }});
+          if (typeof gtag !== 'undefined') {{
+            gtag('event', 'conversion_error', {{
+              'event_category': 'engagement',
+              'event_label': 'failed_conversion',
+              'error_type': '{error_type}'
+            }});
+          }}
         </script>
         """
-        components.html(event_code, height=0)
+        st.markdown(event_code, unsafe_allow_html=True)
 
 # Add GA tracking to page
 add_google_analytics()
