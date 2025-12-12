@@ -367,12 +367,12 @@ with tab2:
         "FitNotes and Hevy use different exercise names. These mappings ensure your exercises are recognized correctly in Hevy instead of appearing as custom exercises."
     )
     subtab1, subtab2, subtab3 = st.tabs(
-        ["View Default Mappings", "Add Custom Mappings", "Preview Mappings"]
+        ["Default Mappings", "Custom Mappings", "Preview Mappings"]
     )
 
     with subtab1:
         st.caption(
-            "These mappings convert FitNotes exercise names to their Hevy equivalents. Use the search box in the table to find specific exercises."
+            "These mappings convert the default FitNotes exercise names to their Hevy equivalents. Use the search box in the table to find specific exercises."
         )
         mappings_df = pd.DataFrame(
             list(default_mappings.items()),
@@ -382,8 +382,30 @@ with tab2:
 
     with subtab2:
         st.caption(
-            "Add custom exercise mappings for exercises not in the default list. Custom mappings will override default mappings if the same FitNotes exercise name is used."
+            "Add custom exercise mappings for exercises not in the default list. Custom mappings will override default mappings if the same FitNotes exercise name is used.\n\nYou can either import a JSON file with your custom mappings or add them manually using the form below."
         )
+        
+        # Import
+        import json
+
+        json_data = json.dumps(st.session_state.custom_mappings, indent=2)
+        
+        uploaded_mappings = st.file_uploader(
+            "Import Custom Mappings", type="json", key="import_mappings"
+        )
+        if uploaded_mappings:
+            try:
+                imported = json.load(uploaded_mappings)
+                if not isinstance(imported, dict):
+                    st.error("Invalid JSON format. Expected a dictionary/object.")
+                else:
+                    st.session_state.custom_mappings.update(imported)
+                    st.success(f"✅ Imported {len(imported)} mappings")
+            except json.JSONDecodeError as e:
+                st.error(f"Invalid JSON file: {str(e)}")
+            except Exception as e:
+                st.error(f"Error importing: {str(e)}")
+        
         col1, col2 = st.columns(2)
         with col1:
             fitnotes_ex = st.text_input("FitNotes Exercise Name")
@@ -392,7 +414,7 @@ with tab2:
 
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            add_clicked = st.button("Add Mapping", type="primary", width="stretch")
+            add_clicked = st.button("Add Custom Mapping", type="primary", use_container_width=True)
 
         if add_clicked:
             if fitnotes_ex and hevy_ex:
@@ -414,7 +436,6 @@ with tab2:
             )
             edited_df = st.data_editor(
                 custom_df,
-                width="stretch",
                 hide_index=True,
                 num_rows="dynamic",
                 key="custom_mappings_editor",
@@ -427,61 +448,13 @@ with tab2:
                 )
                 st.rerun()
 
-            # Import/Export
-            import json
-
-            json_data = json.dumps(st.session_state.custom_mappings, indent=2)
-            col1, col2 = st.columns(2)
-            with col1:
-                uploaded_mappings = st.file_uploader(
-                    "Import Custom Mappings", type="json", key="import_mappings"
-                )
-                if uploaded_mappings:
-                    try:
-                        imported = json.load(uploaded_mappings)
-                        st.session_state.custom_mappings.update(imported)
-                        st.success(f"Imported {len(imported)} mappings")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error importing: {str(e)}")
-            with col2:
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.download_button(
-                    label="Export Custom Mappings",
-                    data=json_data,
-                    file_name="custom_mappings.json",
-                    mime="application/json",
-                    width="stretch",
-                )
-
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                st.markdown(
-                    """
-                <style>
-                .clear-all-btn button[kind="secondary"] {
-                    background-color: #C62828 !important;
-                    border-color: #C62828 !important;
-                    color: white !important;
-                }
-                .clear-all-btn button[kind="secondary"]:hover {
-                    background-color: #B71C1C !important;
-                    border-color: #B71C1C !important;
-                }
-                .clear-all-btn button[kind="secondary"] p {
-                    color: white !important;
-                }
-                </style>
-                <div class="clear-all-btn">
-                """,
-                    unsafe_allow_html=True,
-                )
-                if st.button(
-                    "🗑️ Clear All Custom Mappings", type="secondary", width="stretch"
-                ):
-                    st.session_state.custom_mappings = {}
-                    st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
+            st.download_button(
+                label="📥 Export Custom Mappings",
+                data=json_data,
+                file_name="custom_mappings.json",
+                mime="application/json",
+                use_container_width=True,
+            )
 
     with subtab3:
         if uploaded_file and df is not None:

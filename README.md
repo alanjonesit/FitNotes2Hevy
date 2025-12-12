@@ -1,83 +1,66 @@
-# Fitnotes2Hevy
+# FitNotes2Hevy
 
-Python tool to convert FitNotes workout exports to Hevy-compatible CSV format (Strong app format).
-
-Key features:
-
-- Exercise name mapping between FitNotes and Hevy
-- Automatic timezone adjustment for correct workout timestamps
-- Smart conversion of time-based exercises to reps or distance
-- Customizable exercise mappings
+Convert [FitNotes](https://www.fitnotesapp.com/) workout exports to [Hevy](https://www.hevyapp.com/)-compatible CSV format.
 
 ## Features
 
-- **Exercise Mapping**: 187+ pre-mapped exercises from FitNotes to Hevy names
-- **Timezone Support**: Configurable timezone offset for accurate workout times
-- **Smart Conversions**:
-  - Time → Reps (e.g., Bird Dog, Flutter Kicks)
-  - Time → Distance (e.g., Farmer's Walk)
-- **Custom Mappings**: Add your own exercise mappings via `map_fitnotes2hevy_custom.json`
+- **300+ Exercise Mappings**: Automatically converts FitNotes exercise names to Hevy equivalents
+- **Custom Mappings**: Add, import, and export your own exercise mappings
+- **Timezone Support**: Accurate workout timestamps for your location
+- **Smart Conversions**: Automatically handles time-based exercises
+- **Web & CLI**: [Streamlit](https://streamlit.io/) web interface or command-line tool
 
 ## Quick Start
 
-1. **Export your FitNotes data**
-   - Open FitNotes → Settings → Spreadsheet Export → select Workout Data → Save Export
+### Web Interface (Easiest)
 
-2. **Clone and setup**
+Visit **[fitnotes2hevy.streamlit.app](https://fitnotes2hevy.streamlit.app)** and upload your FitNotes export.
+
+Or run the Streamlit app locally:
+
+```sh
+git clone https://github.com/alanjonesit/FitNotes2Hevy.git
+cd FitNotes2Hevy
+pip install -e ".[web]"
+streamlit run app.py
+```
+
+### Command Line
+
+1. **Export from FitNotes**
+
+   - Open FitNotes → Settings → Spreadsheet Export → Workout Data → Save
+
+2. **Install and convert**
 
    ```sh
    git clone https://github.com/alanjonesit/FitNotes2Hevy.git
    cd FitNotes2Hevy
    pip install -e .
+   python scripts/convert.py -i your_export.csv --timezone 10
    ```
 
-3. **Configure** (edit `src/fitnotes2hevy/config.py`)
+3. **Import to Hevy**
 
-   ```python
-   DEFAULT_TRAINING_TIME = '07:00:00'  # Desired workout time
-   TIMEZONE_OFFSET_HOURS = 10  # Your UTC offset (e.g., 10 for Sydney)
-   ```
-
-4. **Run conversion**
-
-   ```sh
-   python scripts/convert.py -i data/input/your_export.csv
-   ```
-
-   Or with custom options:
-
-   ```sh
-   python scripts/convert.py -i path/to/fitnotes.csv -o path/to/output.csv --timezone 10
-   ```
-
-5. **Import to Hevy**
-   - Open Hevy app → Settings → Export & Import Data → Import Data
-   - Select the generated file from `data/output/`
-
-## Web Interface
-
-Run the Streamlit web app for easier conversion:
-
-```sh
-pip install -e ".[web]"
-streamlit run app.py
-```
-
-Or use the hosted version: [Coming soon]
+   - Open Hevy → Settings → Export & Import Data → Import Data
+   - Select the generated CSV from `data/output/`
 
 ## Configuration
 
-### Timezone Setup
+### Timezone
 
-Hevy interprets timestamps as UTC. Set your timezone offset in `src/fitnotes2hevy/config.py` or via CLI:
+Set your UTC offset to ensure correct workout times:
 
-- **UTC+10** (Sydney, Melbourne): `--timezone 10`
-- **UTC-8** (Los Angeles): `--timezone -8`
-- **UTC+0** (London): `--timezone 0`
+```sh
+python scripts/convert.py -i input.csv --timezone 10  # Sydney (UTC+10)
+python scripts/convert.py -i input.csv --timezone -8  # Los Angeles (UTC-8)
+```
 
 ### Custom Exercise Mappings
 
-Add custom mappings in `data/mappings/custom.json`:
+**Via Web Interface:** Use the Custom Mappings tab to add, import, or export mappings.
+
+**Via JSON file:** Create `data/mappings/custom.json`:
 
 ```json
 {
@@ -85,14 +68,18 @@ Add custom mappings in `data/mappings/custom.json`:
 }
 ```
 
-### Exercise Conversion Rules
+## CLI Options
 
-Some exercises are automatically converted:
-
-- **Time → Reps**: Bird Dog, Dead Bug, Flutter Kicks (10 seconds = 1 rep)
-- **Time → Distance**: Farmer's Walk (1 second = 1 meter)
-
-Edit these lists in `src/fitnotes2hevy/config.py` if needed.
+```sh
+python scripts/convert.py \
+  -i input.csv \           # Input FitNotes export
+  -o output.csv \          # Output file (optional)
+  --timezone 10 \          # UTC offset
+  --time "07:00" \         # Default workout time
+  --duration "60m" \       # Default duration
+  --name "Workout" \       # Default workout name
+  --notes "From FitNotes"  # Default notes
+```
 
 ## Project Structure
 
@@ -116,22 +103,34 @@ FitNotes2Hevy/
 
 ## Troubleshooting
 
-**Workouts show wrong time in Hevy?**
+**Workouts showing wrong times?**
 
-- Adjust timezone offset: `--timezone 10` or edit `src/fitnotes2hevy/config.py`
+- Adjust the timezone offset to match your location (e.g., `--timezone 10` for Sydney)
 
-**Exercise created as custom in Hevy?**
+**Exercise appears as custom in Hevy?**
 
-- Check exercise name matches exactly in `data/exercises/hevy.txt`
-- Add mapping in `data/mappings/custom.json`
-- The exercise could be measured differently between FitNotes and Hevy. For example, a custom exercise "Bird Dog" in FitNotes could be measured in time, but in Hevy it is measured in reps. This disparity will create a custom exercise.
+- The exercise name doesn't match exactly, or uses different units (time vs reps)
+- Add a custom mapping in the web interface or `data/mappings/custom.json`
 
-**Missing exercises?**
+**Missing exercises after import?**
 
-- Unmapped exercises keep their FitNotes names
-- Add them to `data/mappings/custom.json`
+- Unmapped exercises keep their FitNotes names and appear as custom exercises
+- Add mappings for them to use Hevy's built-in exercises
 
-## Documentation
+## Development
 
-- [Usage Guide](docs/usage.md) - Detailed usage instructions
-- [Deployment Guide](docs/deployment.md) - How to deploy the web app
+Install development dependencies:
+
+```sh
+pip install -e ".[dev]"
+```
+
+Run linting:
+
+```sh
+black .
+isort .
+flake8 .
+mypy .
+bandit -r src/
+```
