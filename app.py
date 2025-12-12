@@ -6,8 +6,7 @@ from datetime import datetime
 from io import StringIO
 import sys
 from pathlib import Path
-import os
-from streamlit_gtag import st_gtag
+import streamlit_analytics2 as streamlit_analytics
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -16,45 +15,8 @@ from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
 st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
-# Initialize Google Analytics (after st.set_page_config)
-# Try Streamlit secrets first (Streamlit Cloud), then environment variable (local)
-try:
-    GA_MEASUREMENT_ID = st.secrets["GOOGLE_ANALYTICS_ID"]
-except (KeyError, FileNotFoundError):
-    GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID", "")
-
-# Initialize GA tracking
-if GA_MEASUREMENT_ID:
-    st_gtag(
-        gtag_id=GA_MEASUREMENT_ID,
-        config={
-            "send_page_view": True
-        }
-    )
-
-def track_conversion(num_exercises: int):
-    """Track a successful conversion event."""
-    if GA_MEASUREMENT_ID:
-        st_gtag(
-            event="conversion",
-            parameters={
-                "event_category": "engagement",
-                "event_label": "successful_conversion",
-                "value": num_exercises
-            }
-        )
-
-def track_error(error_type: str):
-    """Track a conversion error event."""
-    if GA_MEASUREMENT_ID:
-        st_gtag(
-            event="conversion_error",
-            parameters={
-                "event_category": "engagement",
-                "event_label": "failed_conversion",
-                "error_type": error_type
-            }
-        )
+# Start tracking analytics
+streamlit_analytics.start_tracking()
 
 # Custom CSS
 st.markdown("""
@@ -258,9 +220,6 @@ if uploaded_file and df is not None:
                     df, mappings, st.session_state.timezone_offset, workout_time_str,
                     st.session_state.workout_name, st.session_state.workout_duration, st.session_state.workout_notes
                 )
-                
-                # Track conversion in Google Analytics
-                track_conversion(len(output_df))
                 
                 # Convert to CSV
                 output = StringIO()
