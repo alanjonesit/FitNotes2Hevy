@@ -4,6 +4,7 @@
 import pathlib
 import sys
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 import typer
@@ -35,7 +36,7 @@ def main(
         ),
     ] = pathlib.Path(INPUT_FILE_PATH),
     output_file: Annotated[
-        pathlib.Path | None,
+        Optional[pathlib.Path],
         typer.Option(
             "--output-file",
             "-o",
