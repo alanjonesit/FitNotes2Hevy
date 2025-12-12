@@ -15,8 +15,11 @@ from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
 st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
-# Start tracking analytics
-streamlit_analytics.start_tracking()
+# Start tracking analytics with Firestore
+streamlit_analytics.start_tracking(
+    firestore_key_file=dict(st.secrets["gcp_service_account"]),
+    firestore_collection_name="streamlit_analytics"
+)
 
 # Custom CSS
 st.markdown("""
