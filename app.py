@@ -1,16 +1,69 @@
 """Streamlit web app for FitNotes to Hevy conversion."""
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime
 from io import StringIO
 import sys
 from pathlib import Path
+import os
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
+
+# Initialize Google Analytics (use environment variable)
+GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID", "")
+
+def add_google_analytics():
+    """Add Google Analytics tracking to the page."""
+    if GA_MEASUREMENT_ID:
+        ga_code = f"""
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){{dataLayer.push(arguments);}}
+          gtag('js', new Date());
+          gtag('config', '{GA_MEASUREMENT_ID}');
+        </script>
+        """
+        components.html(ga_code, height=0)
+
+def track_conversion(num_exercises: int):
+    """Track a successful conversion event."""
+    if GA_MEASUREMENT_ID:
+        event_code = f"""
+        <script>
+          gtag('event', 'conversion', {{
+            'event_category': 'engagement',
+            'event_label': 'successful_conversion',
+            'value': {num_exercises}
+          }});
+        </script>
+        """
+        components.html(event_code, height=0)
+
+def track_error(error_type: str):
+    """Track a conversion error event."""
+    if GA_MEASUREMENT_ID:
+        event_code = f"""
+        <script>
+          gtag('event', 'conversion_error', {{
+            'event_category': 'engagement',
+            'event_label': 'failed_conversion',
+            'error_type': '{error_type}'
+          }});
+        </script>
+        """
+        components.html(event_code, height=0)
+
+# Add GA tracking to page
+add_google_analytics()
+
+
 
 st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
@@ -216,6 +269,9 @@ if uploaded_file and df is not None:
                     df, mappings, st.session_state.timezone_offset, workout_time_str,
                     st.session_state.workout_name, st.session_state.workout_duration, st.session_state.workout_notes
                 )
+                
+                # Track conversion in Google Analytics
+                track_conversion(len(output_df))
                 
                 # Convert to CSV
                 output = StringIO()

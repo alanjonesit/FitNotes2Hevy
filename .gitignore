@@ -17,6 +17,8 @@ Thumbs.db
 venv/
 .env/
 .venv/
+.env
+.env.local
 
 # ---- VS Code files ----
 .vscode/

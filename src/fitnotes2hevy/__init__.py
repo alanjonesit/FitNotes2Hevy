@@ -6,4 +6,7 @@ __author__ = "Alan Jones"
 from .converter import convert_fitnotes_to_hevy
 from .mappings import load_exercise_mappings
 
-__all__ = ["convert_fitnotes_to_hevy", "load_exercise_mappings"]
+__all__ = [
+    "convert_fitnotes_to_hevy",
+    "load_exercise_mappings",
+]
