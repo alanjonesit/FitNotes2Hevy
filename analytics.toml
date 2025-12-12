@@ -1,2 +1,2 @@
 [firestore]
-collection_name = "streamlit_analytics"
+collection_name = "users"
