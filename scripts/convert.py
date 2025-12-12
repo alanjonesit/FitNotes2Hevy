@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Command-line interface for FitNotes to Hevy conversion."""
 
-import sys
-import pandas as pd
 import pathlib
+import sys
 from datetime import datetime
-from typing_extensions import Annotated
+
+import pandas as pd
 import typer
+from typing_extensions import Annotated
 
 # Add src to path for imports
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
 from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
-from fitnotes2hevy.config import DEFAULT_TRAINING_TIME, TIMEZONE_OFFSET_HOURS, INPUT_FILE_PATH
+from fitnotes2hevy.config import (DEFAULT_TRAINING_TIME, INPUT_FILE_PATH,
+                                  TIMEZONE_OFFSET_HOURS)
 
 app = typer.Typer()
 
@@ -25,7 +27,7 @@ def main(
                     help="Input FitNotes CSV filepath"),
     ] = pathlib.Path(INPUT_FILE_PATH),
     output_file: Annotated[
-        pathlib.Path,
+        pathlib.Path | None,
         typer.Option("--output-file", "-o", file_okay=True, dir_okay=False, 
                     help="Output Hevy CSV filepath"),
     ] = None,

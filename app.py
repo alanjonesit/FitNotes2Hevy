@@ -1,11 +1,12 @@
 """Streamlit web app for FitNotes to Hevy conversion."""
 
-import streamlit as st
-import pandas as pd
+import sys
 from datetime import datetime
 from io import StringIO
-import sys
 from pathlib import Path
+
+import pandas as pd
+import streamlit as st
 import streamlit_analytics2 as streamlit_analytics
 
 # Add src to path for imports

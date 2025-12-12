@@ -1,7 +1,9 @@
 """Core conversion logic for FitNotes to Hevy format."""
 
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+
 from .config import *
 
 

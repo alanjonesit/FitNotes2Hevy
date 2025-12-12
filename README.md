@@ -97,7 +97,7 @@ Edit these lists in `src/fitnotes2hevy/config.py` if needed.
 
 ## Project Structure
 
-```
+```txt
 FitNotes2Hevy/
 ├── src/fitnotes2hevy/      # Core package
 │   ├── converter.py        # Conversion logic
