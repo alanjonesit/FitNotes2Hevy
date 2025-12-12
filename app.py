@@ -384,12 +384,12 @@ with tab2:
         st.caption(
             "Add custom exercise mappings for exercises not in the default list. Custom mappings will override default mappings if the same FitNotes exercise name is used.\n\nYou can either import a JSON file with your custom mappings or add them manually using the form below."
         )
-        
+
         # Import
         import json
 
         json_data = json.dumps(st.session_state.custom_mappings, indent=2)
-        
+
         uploaded_mappings = st.file_uploader(
             "Import Custom Mappings", type="json", key="import_mappings"
         )
@@ -405,7 +405,7 @@ with tab2:
                 st.error(f"Invalid JSON file: {str(e)}")
             except Exception as e:
                 st.error(f"Error importing: {str(e)}")
-        
+
         col1, col2 = st.columns(2)
         with col1:
             fitnotes_ex = st.text_input("FitNotes Exercise Name")
@@ -414,7 +414,9 @@ with tab2:
 
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            add_clicked = st.button("Add Custom Mapping", type="primary", use_container_width=True)
+            add_clicked = st.button(
+                "Add Custom Mapping", type="primary", use_container_width=True
+            )
 
         if add_clicked:
             if fitnotes_ex and hevy_ex:

@@ -28,7 +28,6 @@ streamlit run app.py
 ### Command Line
 
 1. **Export from FitNotes**
-
    - Open FitNotes → Settings → Spreadsheet Export → Workout Data → Save
 
 2. **Install and convert**
@@ -41,7 +40,6 @@ streamlit run app.py
    ```
 
 3. **Import to Hevy**
-
    - Open Hevy → Settings → Export & Import Data → Import Data
    - Select the generated CSV from `data/output/`
 
