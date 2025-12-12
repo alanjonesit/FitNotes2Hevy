@@ -9,17 +9,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Load exercise lists
-with open('data/exercises/fitnotes_default.txt', 'r') as f:
+with open("data/exercises/fitnotes_default.txt", "r") as f:
     fitnotes_default = sorted(set(line.strip() for line in f if line.strip()))
 
-with open('data/exercises/fitnotes_extra.txt', 'r') as f:
+with open("data/exercises/fitnotes_extra.txt", "r") as f:
     fitnotes_extra = sorted(set(line.strip() for line in f if line.strip()))
 
 # Load mappings
-with open('data/mappings/default.json', 'r') as f:
+with open("data/mappings/default.json", "r") as f:
     default_map = json.load(f)
 
-with open('data/mappings/extra.json', 'r') as f:
+with open("data/mappings/extra.json", "r") as f:
     extra_map = json.load(f)
 
 # Report

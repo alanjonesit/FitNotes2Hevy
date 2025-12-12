@@ -21,11 +21,12 @@ streamlit_analytics.start_tracking(
     streamlit_secrets_firestore_key="gcp_service_account",
     firestore_collection_name="users",
     firestore_project_name="fitnotes2hevy",
-    unsafe_password=st.secrets.get("analytics_password", "")
+    unsafe_password=st.secrets.get("analytics_password", ""),
 )
 
 # Custom CSS
-st.markdown("""
+st.markdown(
+    """
 <style>
     /* Center content and constrain width v2 */
     .main .block-container {
@@ -148,49 +149,59 @@ st.markdown("""
         border-color: #45a049 !important;
     }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 st.title("FitNotes to Hevy")
-st.markdown('<p style="text-align: center; font-size: 1.2rem;">Seamlessly migrate your workout history from <a href="https://www.fitnotesapp.com/">FitNotes</a> to <a href="https://www.hevyapp.com/">Hevy</a>.<br>Upload your FitNotes CSV to get started.</p>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; font-size: 0.9rem; font-style: italic; color: #666; margin-top: -0.5rem;">Refer to FAQ below on how to retrieve the FitNotes CSV.</p>', unsafe_allow_html=True)
+st.markdown(
+    '<p style="text-align: center; font-size: 1.2rem;">Seamlessly migrate your workout history from <a href="https://www.fitnotesapp.com/">FitNotes</a> to <a href="https://www.hevyapp.com/">Hevy</a>.<br>Upload your FitNotes CSV to get started.</p>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<p style="text-align: center; font-size: 0.9rem; font-style: italic; color: #666; margin-top: -0.5rem;">Refer to FAQ below on how to retrieve the FitNotes CSV.</p>',
+    unsafe_allow_html=True,
+)
+
 
 # Load default mappings (only default.json for display)
 @st.cache_data
 def get_default_mappings():
     import json
     from pathlib import Path
-    with open(Path('data/mappings/default.json'), 'r', encoding='utf-8') as f:
+
+    with open(Path("data/mappings/default.json"), "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 default_mappings = get_default_mappings()
+
 
 # Load all mappings for conversion
 @st.cache_data
 def get_all_mappings():
     return load_exercise_mappings()
 
+
 all_mappings = get_all_mappings()
 
 # Initialize session state
-if 'custom_mappings' not in st.session_state:
+if "custom_mappings" not in st.session_state:
     st.session_state.custom_mappings = {}
-if 'timezone_offset' not in st.session_state:
+if "timezone_offset" not in st.session_state:
     st.session_state.timezone_offset = 10
-if 'workout_time' not in st.session_state:
+if "workout_time" not in st.session_state:
     st.session_state.workout_time = "07:00"
-if 'workout_duration' not in st.session_state:
+if "workout_duration" not in st.session_state:
     st.session_state.workout_duration = "60m"
-if 'workout_name' not in st.session_state:
+if "workout_name" not in st.session_state:
     st.session_state.workout_name = "Workout"
-if 'workout_notes' not in st.session_state:
+if "workout_notes" not in st.session_state:
     st.session_state.workout_notes = "Imported from FitNotes"
 
 # File upload
 uploaded_file = st.file_uploader(
-    "Upload CSV",
-    type="csv",
-    accept_multiple_files=False,
-    label_visibility="collapsed"
+    "Upload CSV", type="csv", accept_multiple_files=False, label_visibility="collapsed"
 )
 
 if uploaded_file:
@@ -198,6 +209,7 @@ if uploaded_file:
         df = pd.read_csv(uploaded_file)
         # Validate immediately after loading
         from fitnotes2hevy.converter import validate_fitnotes_dataframe
+
         validate_fitnotes_dataframe(df)
     except ValueError as e:
         st.error(str(e))
@@ -212,26 +224,37 @@ if uploaded_file and df is not None:
     try:
         # Merge all mappings (default+extra) with custom mappings
         mappings = {**all_mappings, **st.session_state.custom_mappings}
-        
+
         # Convert button (centered)
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            convert_clicked = st.button("Convert to Hevy CSV Format", type="primary", width='stretch')
-        
+            convert_clicked = st.button(
+                "Convert to Hevy CSV Format", type="primary", width="stretch"
+            )
+
         if convert_clicked:
             with st.spinner("Converting..."):
                 # Convert using core module with session state values
-                workout_time_str = st.session_state.workout_time + ":00" if st.session_state.workout_time.count(':') == 1 else st.session_state.workout_time
-                output_df = convert_fitnotes_to_hevy(
-                    df, mappings, st.session_state.timezone_offset, workout_time_str,
-                    st.session_state.workout_name, st.session_state.workout_duration, st.session_state.workout_notes
+                workout_time_str = (
+                    st.session_state.workout_time + ":00"
+                    if st.session_state.workout_time.count(":") == 1
+                    else st.session_state.workout_time
                 )
-                
+                output_df = convert_fitnotes_to_hevy(
+                    df,
+                    mappings,
+                    st.session_state.timezone_offset,
+                    workout_time_str,
+                    st.session_state.workout_name,
+                    st.session_state.workout_duration,
+                    st.session_state.workout_notes,
+                )
+
                 # Convert to CSV
                 output = StringIO()
-                output_df.to_csv(output, index=False, sep=';', quoting=1)
+                output_df.to_csv(output, index=False, sep=";", quoting=1)
                 csv_data = output.getvalue()
-                
+
                 # Download button (centered)
                 timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
                 col1, col2, col3 = st.columns([1, 2, 1])
@@ -241,11 +264,12 @@ if uploaded_file and df is not None:
                         data=csv_data,
                         file_name=f"fitnotes2hevy_{timestamp}.csv",
                         mime="text/csv",
-                        width="stretch"
+                        width="stretch",
                     )
-                
+
                 # Ko-fi donation prompt
-                st.markdown("""
+                st.markdown(
+                    """
                 <div style="text-align: center; margin-top: 1rem; padding: 1rem; background-color: rgba(66, 165, 245, 0.1); border-radius: 8px;">
                     <p style="margin: 0 0 0.5rem 0;">✨ Found this useful?</p>
                     <a href="https://ko-fi.com/alanjonesit" target="_blank" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #FF5E5B; color: white; border-radius: 8px; transition: all 0.2s ease;">
@@ -254,8 +278,10 @@ if uploaded_file and df is not None:
                     </a>
                     <p style="margin: 0.75rem 0 0 0; font-size: 0.9rem; color: #666; font-style: italic;">This started as a weekend project to solve my own FitNotes to Hevy migration headache. If it helped you too, a coffee would be much appreciated!</p>
                 </div>
-                """, unsafe_allow_html=True)
-                    
+                """,
+                    unsafe_allow_html=True,
+                )
+
     except Exception as e:
         st.error(f"Error: {str(e)}")
         st.exception(e)
@@ -264,8 +290,10 @@ if uploaded_file and df is not None:
 tab1, tab2, tab3 = st.tabs(["Settings", "Exercise Mappings", "FAQ"])
 
 with tab1:
-    st.caption("Configure conversion settings. FitNotes does not store this information, so defaults are applied to all workouts.")
-    
+    st.caption(
+        "Configure conversion settings. FitNotes does not store this information, so defaults are applied to all workouts."
+    )
+
     # Timezone options
     timezone_options = {
         "UTC-12 (Baker Island)": -12,
@@ -296,99 +324,117 @@ with tab1:
         "UTC+11 (Solomon Islands)": 11,
         "UTC+12 (Auckland, Fiji)": 12,
         "UTC+13 (Tonga)": 13,
-        "UTC+14 (Kiribati)": 14
+        "UTC+14 (Kiribati)": 14,
     }
-    
-    default_index = list(timezone_options.values()).index(st.session_state.timezone_offset)
+
+    default_index = list(timezone_options.values()).index(
+        st.session_state.timezone_offset
+    )
     timezone_selection = st.selectbox(
         "Timezone",
         options=list(timezone_options.keys()),
         index=default_index,
-        help="Select your timezone for accurate workout timestamps. If unsure, check your device's timezone settings."
+        help="Select your timezone for accurate workout timestamps. If unsure, check your device's timezone settings.",
     )
     st.session_state.timezone_offset = timezone_options[timezone_selection]
-    
+
     st.session_state.workout_time = st.text_input(
-        "Workout Start Time (24hr)", 
+        "Workout Start Time (24hr)",
         value=st.session_state.workout_time,
-        help="The time workouts will appear in Hevy (in your local timezone). Format: HH:MM"
+        help="The time workouts will appear in Hevy (in your local timezone). Format: HH:MM",
     )
-    
+
     st.session_state.workout_duration = st.text_input(
-        "Workout Duration", 
+        "Workout Duration",
         value=st.session_state.workout_duration,
-        help="Format: '60m' for minutes or '3600s' for seconds."
+        help="Format: '60m' for minutes or '3600s' for seconds.",
     )
-    
+
     st.session_state.workout_name = st.text_input(
-        "Workout Name", 
+        "Workout Name",
         value=st.session_state.workout_name,
-        help="Default name for all imported workouts."
+        help="Default name for all imported workouts.",
     )
-    
+
     st.session_state.workout_notes = st.text_input(
-        "Workout Notes (optional)", 
+        "Workout Notes (optional)",
         value=st.session_state.workout_notes,
-        help="Notes added to all imported workouts."
+        help="Notes added to all imported workouts.",
     )
 
 with tab2:
-    st.info("FitNotes and Hevy use different exercise names. These mappings ensure your exercises are recognized correctly in Hevy instead of appearing as custom exercises.")
-    subtab1, subtab2, subtab3 = st.tabs(["View Default Mappings", "Add Custom Mappings", "Preview Mappings"])
-    
+    st.info(
+        "FitNotes and Hevy use different exercise names. These mappings ensure your exercises are recognized correctly in Hevy instead of appearing as custom exercises."
+    )
+    subtab1, subtab2, subtab3 = st.tabs(
+        ["View Default Mappings", "Add Custom Mappings", "Preview Mappings"]
+    )
+
     with subtab1:
-        st.caption("These mappings convert FitNotes exercise names to their Hevy equivalents. Use the search box in the table to find specific exercises.")
-        mappings_df = pd.DataFrame(list(default_mappings.items()), columns=['FitNotes Exercise', 'Hevy Exercise'])
+        st.caption(
+            "These mappings convert FitNotes exercise names to their Hevy equivalents. Use the search box in the table to find specific exercises."
+        )
+        mappings_df = pd.DataFrame(
+            list(default_mappings.items()),
+            columns=["FitNotes Exercise", "Hevy Exercise"],
+        )
         st.dataframe(mappings_df, width="stretch", height=400, hide_index=True)
-    
+
     with subtab2:
-        st.caption("Add custom exercise mappings for exercises not in the default list. Custom mappings will override default mappings if the same FitNotes exercise name is used.")
+        st.caption(
+            "Add custom exercise mappings for exercises not in the default list. Custom mappings will override default mappings if the same FitNotes exercise name is used."
+        )
         col1, col2 = st.columns(2)
         with col1:
             fitnotes_ex = st.text_input("FitNotes Exercise Name")
         with col2:
             hevy_ex = st.text_input("Hevy Exercise Name")
-        
+
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             add_clicked = st.button("Add Mapping", type="primary", width="stretch")
-        
+
         if add_clicked:
             if fitnotes_ex and hevy_ex:
                 st.session_state.custom_mappings[fitnotes_ex] = hevy_ex
                 st.success(f"Added: {fitnotes_ex} → {hevy_ex}")
             else:
                 st.error("Please enter both exercise names")
-        
+
         if st.session_state.custom_mappings:
             st.write(f"**{len(st.session_state.custom_mappings)} custom mappings:**")
-            st.caption("To delete a custom mapping, select the checkbox on the left-most column for the row you want to delete, then use Backspace or click the bin icon.")
-            
+            st.caption(
+                "To delete a custom mapping, select the checkbox on the left-most column for the row you want to delete, then use Backspace or click the bin icon."
+            )
+
             # Display as editable dataframe
-            custom_df = pd.DataFrame(list(st.session_state.custom_mappings.items()), 
-                                    columns=['FitNotes Exercise', 'Hevy Exercise'])
+            custom_df = pd.DataFrame(
+                list(st.session_state.custom_mappings.items()),
+                columns=["FitNotes Exercise", "Hevy Exercise"],
+            )
             edited_df = st.data_editor(
-                custom_df, 
-                width="stretch", 
+                custom_df,
+                width="stretch",
                 hide_index=True,
                 num_rows="dynamic",
-                key="custom_mappings_editor"
+                key="custom_mappings_editor",
             )
-            
+
             # Update mappings from edited dataframe
             if not edited_df.equals(custom_df):
-                st.session_state.custom_mappings = dict(zip(edited_df['FitNotes Exercise'], edited_df['Hevy Exercise']))
+                st.session_state.custom_mappings = dict(
+                    zip(edited_df["FitNotes Exercise"], edited_df["Hevy Exercise"])
+                )
                 st.rerun()
-            
+
             # Import/Export
             import json
+
             json_data = json.dumps(st.session_state.custom_mappings, indent=2)
             col1, col2 = st.columns(2)
             with col1:
                 uploaded_mappings = st.file_uploader(
-                    "Import Custom Mappings",
-                    type="json",
-                    key="import_mappings"
+                    "Import Custom Mappings", type="json", key="import_mappings"
                 )
                 if uploaded_mappings:
                     try:
@@ -405,12 +451,13 @@ with tab2:
                     data=json_data,
                     file_name="custom_mappings.json",
                     mime="application/json",
-                    width="stretch"
+                    width="stretch",
                 )
-            
+
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
-                st.markdown("""
+                st.markdown(
+                    """
                 <style>
                 .clear-all-btn button[kind="secondary"] {
                     background-color: #C62828 !important;
@@ -426,71 +473,111 @@ with tab2:
                 }
                 </style>
                 <div class="clear-all-btn">
-                """, unsafe_allow_html=True)
-                if st.button("🗑️ Clear All Custom Mappings", type="secondary", width="stretch"):
+                """,
+                    unsafe_allow_html=True,
+                )
+                if st.button(
+                    "🗑️ Clear All Custom Mappings", type="secondary", width="stretch"
+                ):
                     st.session_state.custom_mappings = {}
                     st.rerun()
                 st.markdown("</div>", unsafe_allow_html=True)
-    
+
     with subtab3:
         if uploaded_file and df is not None:
             # Merge all mappings for preview
             mappings = {**all_mappings, **st.session_state.custom_mappings}
-            unique_exercises = df['Exercise'].unique()
-            mapping_preview = pd.DataFrame({
-                'FitNotes Exercise': unique_exercises,
-                'Hevy Exercise': [mappings.get(ex, ex) for ex in unique_exercises],
-                'Status': ['✅ Mapped' if ex in mappings else '⚠️ Unmapped' for ex in unique_exercises]
-            })
-            st.dataframe(mapping_preview, width='stretch')
-            
+            unique_exercises = df["Exercise"].unique()
+            mapping_preview = pd.DataFrame(
+                {
+                    "FitNotes Exercise": unique_exercises,
+                    "Hevy Exercise": [mappings.get(ex, ex) for ex in unique_exercises],
+                    "Status": [
+                        "✅ Mapped" if ex in mappings else "⚠️ Unmapped"
+                        for ex in unique_exercises
+                    ],
+                }
+            )
+            st.dataframe(mapping_preview, width="stretch")
+
             # Show unmapped exercises
-            unmapped = df[~df['Exercise'].isin(mappings.keys())]['Exercise'].unique()
+            unmapped = df[~df["Exercise"].isin(mappings.keys())]["Exercise"].unique()
             if len(unmapped) > 0:
-                st.warning(f"Warning: {len(unmapped)} exercise(s) will keep their original names and be created as custom exercises in Hevy.")
+                st.warning(
+                    f"Warning: {len(unmapped)} exercise(s) will keep their original names and be created as custom exercises in Hevy."
+                )
         else:
-            st.warning("Please upload a FitNotes CSV file to preview exercise mappings.")
+            st.warning(
+                "Please upload a FitNotes CSV file to preview exercise mappings."
+            )
 
 with tab3:
     with st.expander("Is my workout data private and secure?"):
-        st.write("Yes! Your data is only held in memory during conversion and deleted immediately after. No workout data is saved to disk or stored anywhere.")
-        st.write("For complete privacy, you can [run this tool locally on your machine](https://github.com/alanjonesit/FitNotes2Hevy#web-interface).")
-    
+        st.write(
+            "Yes! Your data is only held in memory during conversion and deleted immediately after. No workout data is saved to disk or stored anywhere."
+        )
+        st.write(
+            "For complete privacy, you can [run this tool locally on your machine](https://github.com/alanjonesit/FitNotes2Hevy#web-interface)."
+        )
+
     with st.expander("How do I export from FitNotes?"):
-        st.write("Open FitNotes → Settings → Spreadsheet Export → select Workout Data → Save Export.")
-    
+        st.write(
+            "Open FitNotes → Settings → Spreadsheet Export → select Workout Data → Save Export."
+        )
+
     with st.expander("How do I import the converted file to Hevy?"):
-        st.write("Open Hevy app → Settings → Export & Import Data → Import Data → Select the downloaded CSV file.")
-        st.write("View Hevy's [official import tutorial](https://help.hevyapp.com/hc/en-us/articles/35687878672663-Tutorial-Log-Previous-Workouts-and-Import-CSV).")
-    
+        st.write(
+            "Open Hevy app → Settings → Export & Import Data → Import Data → Select the downloaded CSV file."
+        )
+        st.write(
+            "View Hevy's [official import tutorial](https://help.hevyapp.com/hc/en-us/articles/35687878672663-Tutorial-Log-Previous-Workouts-and-Import-CSV)."
+        )
+
     with st.expander("Why are my workout times wrong in Hevy?"):
-        st.write("Adjust the timezone offset in the Settings section to match your location (e.g., UTC+10 for Sydney).")
-    
+        st.write(
+            "Adjust the timezone offset in the Settings section to match your location (e.g., UTC+10 for Sydney)."
+        )
+
     with st.expander("Some exercises appear as custom in Hevy. Why?"):
-        st.write("This happens when exercise names don't match exactly or when exercises use different measurement types (e.g., time vs reps). The converter maps 300+ exercises automatically.")
-    
+        st.write(
+            "This happens when exercise names don't match exactly or when exercises use different measurement types (e.g., time vs reps). The converter maps 300+ exercises automatically."
+        )
+
     with st.expander("Will my workout history be preserved?"):
-        st.write("Yes! All your sets, reps, weights, and dates are converted and preserved.")
-    
+        st.write(
+            "Yes! All your sets, reps, weights, and dates are converted and preserved."
+        )
+
     with st.expander("What format does this tool use?"):
-        st.write("This tool converts FitNotes data to Strong app CSV format, which is the only format Hevy supports for imports.")
-    
+        st.write(
+            "This tool converts FitNotes data to Strong app CSV format, which is the only format Hevy supports for imports."
+        )
+
     with st.expander("Are there any known issues with specific exercises?"):
-        st.write("Some exercises will appear as custom in Hevy even with exact names and measurements due to internal Hevy limitations:")
+        st.write(
+            "Some exercises will appear as custom in Hevy even with exact names and measurements due to internal Hevy limitations:"
+        )
         st.write("• Overhead Triceps Extension (Cable)")
         st.write("• Rear Kick (Machine)")
-    
+
     with st.expander("Does this import routines?"):
-        st.write("No, this tool only imports workout history (exercises, sets, reps, weights). Routines are not imported.")
-    
+        st.write(
+            "No, this tool only imports workout history (exercises, sets, reps, weights). Routines are not imported."
+        )
+
     with st.expander("Is there a limit on custom exercises?"):
-        st.write("Without [Hevy Pro](https://hevy.com/plans), there is a limit of 7 custom exercises that can be imported. With Hevy Pro, there is no limit.")
-    
+        st.write(
+            "Without [Hevy Pro](https://hevy.com/plans), there is a limit of 7 custom exercises that can be imported. With Hevy Pro, there is no limit."
+        )
+
     with st.expander("How do I report issues or request features?"):
-        st.write("Visit the [GitHub repository](https://github.com/alanjonesit/FitNotes2Hevy/issues) to report issues or request new features.")
+        st.write(
+            "Visit the [GitHub repository](https://github.com/alanjonesit/FitNotes2Hevy/issues) to report issues or request new features."
+        )
 
 # Footer with GitHub and Ko-fi links
-st.markdown("""
+st.markdown(
+    """
 <div style="text-align: center; margin-top: 3rem; padding: 2rem 0; border-top: 1px solid rgba(128, 128, 128, 0.2);">
     <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
         <a href="https://github.com/alanjonesit/FitNotes2Hevy" target="_blank" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 1px solid rgba(128, 128, 128, 0.3); border-radius: 8px; transition: all 0.2s ease;">
@@ -503,12 +590,14 @@ st.markdown("""
         </a>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # Stop tracking and show analytics if ?analytics=on is in URL
 streamlit_analytics.stop_tracking(
     streamlit_secrets_firestore_key="gcp_service_account",
     firestore_collection_name="users",
     firestore_project_name="fitnotes2hevy",
-    unsafe_password=st.secrets.get("analytics_password", "")
+    unsafe_password=st.secrets.get("analytics_password", ""),
 )
