@@ -17,9 +17,10 @@ st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
 # Start tracking analytics with Firestore
 streamlit_analytics.start_tracking(
-    firestore_key_file=dict(st.secrets["gcp_service_account"]),
+    streamlit_secrets_firestore_key="gcp_service_account",
     firestore_collection_name="users",
-    firestore_project_name="fitnotes2hevy"
+    firestore_project_name="fitnotes2hevy",
+    unsafe_password=st.secrets.get("analytics_password", "")
 )
 
 # Custom CSS
