@@ -39,3 +39,6 @@ Issues = "https://github.com/alanjonesit/FitNotes2Hevy/issues"
 
 [project.scripts]
 fitnotes2hevy = "scripts.convert:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]

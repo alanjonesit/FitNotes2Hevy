@@ -4,8 +4,13 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from io import StringIO
+import sys
+from pathlib import Path
 
-from src.fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
 st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
