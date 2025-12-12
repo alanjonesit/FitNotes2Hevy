@@ -17,11 +17,10 @@ from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 st.set_page_config(page_title="FitNotes to Hevy Converter", page_icon="💪")
 
 # Initialize Google Analytics (after st.set_page_config)
-GA_MEASUREMENT_ID = ""
+# Try Streamlit secrets first (Streamlit Cloud), then environment variable (local)
 try:
-    GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID") or st.secrets.get("GOOGLE_ANALYTICS_ID", "")
-except FileNotFoundError:
-    # secrets.toml not found, try environment variable only
+    GA_MEASUREMENT_ID = st.secrets["GOOGLE_ANALYTICS_ID"]
+except (KeyError, FileNotFoundError):
     GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID", "")
 
 # Initialize GA tracking
