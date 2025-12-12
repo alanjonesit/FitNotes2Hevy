@@ -187,7 +187,7 @@ if uploaded_file:
     try:
         df = pd.read_csv(uploaded_file)
         # Validate immediately after loading
-        from src.fitnotes2hevy.converter import validate_fitnotes_dataframe
+        from fitnotes2hevy.converter import validate_fitnotes_dataframe
         validate_fitnotes_dataframe(df)
     except ValueError as e:
         st.error(str(e))

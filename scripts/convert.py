@@ -11,8 +11,8 @@ import typer
 # Add src to path for imports
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
-from src.fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
-from src.fitnotes2hevy.config import DEFAULT_TRAINING_TIME, TIMEZONE_OFFSET_HOURS, INPUT_FILE_PATH
+from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
+from fitnotes2hevy.config import DEFAULT_TRAINING_TIME, TIMEZONE_OFFSET_HOURS, INPUT_FILE_PATH
 
 app = typer.Typer()
 
