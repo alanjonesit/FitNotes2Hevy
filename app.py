@@ -7,66 +7,49 @@ from io import StringIO
 import sys
 from pathlib import Path
 import os
+from streamlit_gtag import st_gtag
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
-# Initialize Google Analytics (use environment variable)
-try:
-    GA_MEASUREMENT_ID = st.secrets.get("GOOGLE_ANALYTICS_ID", "")
-except (FileNotFoundError, KeyError):
-    GA_MEASUREMENT_ID = ""  # Running locally without secrets
+# Initialize Google Analytics (use environment variable or Streamlit secrets)
+GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID") or st.secrets.get("GOOGLE_ANALYTICS_ID", "")
 
-def add_google_analytics():
-    """Add Google Analytics tracking to the page."""
-    if GA_MEASUREMENT_ID:
-        ga_code = f"""
-        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){{dataLayer.push(arguments);}}
-          gtag('js', new Date());
-          gtag('config', '{GA_MEASUREMENT_ID}');
-        </script>
-        """
-        st.markdown(ga_code, unsafe_allow_html=True)
+# Initialize GA tracking
+if GA_MEASUREMENT_ID:
+    st_gtag(
+        gtag_id=GA_MEASUREMENT_ID,
+        config={
+            "send_page_view": True
+        }
+    )
 
 def track_conversion(num_exercises: int):
     """Track a successful conversion event."""
     if GA_MEASUREMENT_ID:
-        event_code = f"""
-        <script>
-          if (typeof gtag !== 'undefined') {{
-            gtag('event', 'conversion', {{
-              'event_category': 'engagement',
-              'event_label': 'successful_conversion',
-              'value': {num_exercises}
-            }});
-          }}
-        </script>
-        """
-        st.markdown(event_code, unsafe_allow_html=True)
+        st_gtag(
+            event="conversion",
+            parameters={
+                "event_category": "engagement",
+                "event_label": "successful_conversion",
+                "value": num_exercises
+            }
+        )
 
 def track_error(error_type: str):
     """Track a conversion error event."""
     if GA_MEASUREMENT_ID:
-        event_code = f"""
-        <script>
-          if (typeof gtag !== 'undefined') {{
-            gtag('event', 'conversion_error', {{
-              'event_category': 'engagement',
-              'event_label': 'failed_conversion',
-              'error_type': '{error_type}'
-            }});
-          }}
-        </script>
-        """
-        st.markdown(event_code, unsafe_allow_html=True)
+        st_gtag(
+            event="conversion_error",
+            parameters={
+                "event_category": "engagement",
+                "event_label": "failed_conversion",
+                "error_type": error_type
+            }
+        )
 
-# Add GA tracking to page
-add_google_analytics()
 
 
 

@@ -1,3 +1,6 @@
+# ---- Streamlit ----
+.streamlit/secrets.toml
+
 # ---- Python files and folders ----
 __pycache__/
 *.py[cod]
