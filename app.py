@@ -503,3 +503,11 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+# Stop tracking and show analytics if ?analytics=on is in URL
+streamlit_analytics.stop_tracking(
+    streamlit_secrets_firestore_key="gcp_service_account",
+    firestore_collection_name="users",
+    firestore_project_name="fitnotes2hevy",
+    unsafe_password=st.secrets.get("analytics_password", "")
+)
