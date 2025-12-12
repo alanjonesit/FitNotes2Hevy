@@ -21,7 +21,6 @@ Key features:
 ## Quick Start
 
 1. **Export your FitNotes data**
-
    - Open FitNotes → Settings → Spreadsheet Export → select Workout Data → Save Export
 
 2. **Clone and setup**
