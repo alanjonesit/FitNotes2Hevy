@@ -15,7 +15,16 @@ sys.path.insert(0, str(Path(__file__).parent))
 from fitnotes2hevy import convert_fitnotes_to_hevy, load_exercise_mappings
 
 # Initialize Google Analytics (use environment variable)
-GA_MEASUREMENT_ID = os.getenv("GOOGLE_ANALYTICS_ID", "")
+try:
+    GA_MEASUREMENT_ID = st.secrets.get("GOOGLE_ANALYTICS_ID", "")
+except (FileNotFoundError, KeyError):
+    GA_MEASUREMENT_ID = ""  # Running locally without secrets
+
+# Debug - remove this after testing
+if GA_MEASUREMENT_ID:
+    st.sidebar.write(f"GA ID loaded: {GA_MEASUREMENT_ID[:8]}...")  # Shows first 8 chars
+else:
+    st.sidebar.write("⚠️ GA ID not found")
 
 def add_google_analytics():
     """Add Google Analytics tracking to the page."""
